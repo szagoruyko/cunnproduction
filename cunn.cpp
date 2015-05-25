@@ -42,24 +42,27 @@ Module::~Module() {
 }
 
 
-SpatialConvolution::SpatialConvolution(THCState *state,
+SpatialConvolutionMM::SpatialConvolutionMM(THCState *state,
     int nInputPlane, int nOutputPlane, int kW, int kH, int dW, int dH, int padding) :
-    	Module(state), nInputPlane(nInputPlane), nOutputPlane(nOutputPlane), kW(kW), kH(kH), dW(dW), dH(dH)  {
-  weight = THCudaTensor_newWithSize4d(state, nOutputPlane, nInputPlane, kW, kH);
+    	Module(state), nInputPlane(nInputPlane), nOutputPlane(nOutputPlane), kW(kW), kH(kH), dW(dW), dH(dH), padding(padding)  {
+  weight = THCudaTensor_newWithSize2d(state, nOutputPlane, nInputPlane*kW*kH);
   bias = THCudaTensor_newWithSize1d(state, nOutputPlane);
   finput = THCudaTensor_new(state);
   fgradinput = THCudaTensor_new(state);
 }
 
 THCudaTensor*
-SpatialConvolution::forward(THCudaTensor *input)
+SpatialConvolutionMM::forward(THCudaTensor *input)
 {
+  for(int i=0; i<THCudaTensor_nDimension(state, input); ++i)
+    printf("%d ", input->size[i]);
+  printf("\n");
   cunnrelease_SpatialConvolution(state, input, weight, bias, finput, fgradinput, output,
       nInputPlane, nOutputPlane, kW, kH, dW, dH, padding);
   return output;
 }
 
-SpatialConvolution::~SpatialConvolution()
+SpatialConvolutionMM::~SpatialConvolutionMM()
 {
   THCudaTensor_free(state, weight);
   THCudaTensor_free(state, bias);
@@ -75,6 +78,9 @@ SpatialMaxPooling::~SpatialMaxPooling() {}
 THCudaTensor*
 SpatialMaxPooling::forward(THCudaTensor *input)
 {
+  for(int i=0; i<THCudaTensor_nDimension(state, input); ++i)
+    printf("%d ", input->size[i]);
+  printf("\n");
   cunnrelease_SpatialMaxPooling(state, input, output, kW, kH, dW, dH, false);
   return output;
 }
@@ -87,6 +93,9 @@ ReLU::~ReLU() {}
 THCudaTensor*
 ReLU::forward(THCudaTensor *input)
 {
+  for(int i=0; i<THCudaTensor_nDimension(state, input); ++i)
+    printf("%d ", input->size[i]);
+  printf("ReLU \n");
   cunnrelease_ReLUIP(state, input);
   return input;
 }
@@ -110,10 +119,19 @@ Linear::~Linear()
 THCudaTensor*
 Linear::forward(THCudaTensor *input)
 {
+  //THAssert(THCudaTensor_nDimension(state, input) <= 2);
+  for(int i=0; i<THCudaTensor_nDimension(state, input); ++i)
+    printf("%d ", input->size[i]);
+  printf("\n");
   cunnrelease_Linear(state, input, output, weight, bias, buffer);
   return output;
 }
 
+Module::Ptr
+Sequential::get(int j) const
+{
+  return modules[j];
+}
 
 void
 Sequential::add(Module::Ptr module)
@@ -126,8 +144,28 @@ Sequential::forward(THCudaTensor* input)
 {
   THCudaTensor* output = input;
   for(auto& it: modules)
+  {
     output = it->forward(output);
+    printf("norm %f\n", THCudaTensor_normall(it->state, output, 2));
+  }
   return output;
 }
 
+Reshape::Reshape(THCState *state, const std::vector<size_t>& sizes) : Module(state), sizes(sizes) {}
+
+Reshape::~Reshape() {}
+
+THCudaTensor*
+Reshape::forward(THCudaTensor* input)
+{
+  for(int i=0; i<THCudaTensor_nDimension(state, input); ++i)
+    printf("%d ", input->size[i]);
+  printf("Reshape \n");
+  size_t ndim = THCudaTensor_nDimension(state, input);
+  // support only one case for now
+  THCudaTensor_resize2d(state, output, input->size[0], sizes[0]);
+  THCudaTensor_copy(state, output, input);
+  return output; 
 }
+
+} // namespace cunn

@@ -34,7 +34,7 @@ void cunnrelease_ReLU(THCState *state,
     THCudaTensor *input);
 ]]
 
-local C = ffi.load'./build/libcunnrelease.dylib'
+local C = ffi.load'./build/libcunnrelease.so'
 
 local mytester = torch.Tester()
 

@@ -24,6 +24,7 @@ public:
  */
 class Sequential {
 public:
+  Module::Ptr get(int i) const;
   void add(Module::Ptr module);
 
   THCudaTensor* forward(THCudaTensor* input);
@@ -35,10 +36,10 @@ public:
 /*
  * nn.SpatialConvolutionMM
  */
-class SpatialConvolution : public Module {
+class SpatialConvolutionMM : public Module {
 public:
-  SpatialConvolution(THCState *state, int nInputPlane, int nOutputPlane, int kW, int kH, int dW = 1, int dH = 1, int padding = 0);
-  ~SpatialConvolution();
+  SpatialConvolutionMM(THCState *state, int nInputPlane, int nOutputPlane, int kW, int kH, int dW = 1, int dH = 1, int padding = 0);
+  ~SpatialConvolutionMM();
 
   THCudaTensor* forward(THCudaTensor *input);
 
@@ -83,6 +84,15 @@ public:
 
   THCudaTensor *weight, *bias, *buffer;
   int nOutputPlane, nInputPlane;
+};
+
+class Reshape : public Module {
+public:
+  Reshape(THCState *state, const std::vector<size_t>& sizes);
+  ~Reshape();
+
+  THCudaTensor* forward(THCudaTensor* input);
+  std::vector<size_t> sizes;
 };
 
 }

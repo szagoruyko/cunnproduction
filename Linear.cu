@@ -11,6 +11,12 @@ void cunnrelease_Linear(THCState *state,
   long nOutputPlane = weight->size[0];
   long bs = input->size[0];
 
+  if(THCudaTensor_nDimension(state, buffer) == 0 || buffer->size[0] != bs)
+  {
+    THCudaTensor_resize1d(state, buffer, bs);
+    THCudaTensor_fill(state, buffer, 1);
+  }
+
   THCudaTensor_resize2d(state, output, bs, nOutputPlane);
 
   weight = THCudaTensor_newTranspose(state, weight, 0, 1);

@@ -54,9 +54,6 @@ SpatialConvolutionMM::SpatialConvolutionMM(THCState *state,
 THCudaTensor*
 SpatialConvolutionMM::forward(THCudaTensor *input)
 {
-  for(int i=0; i<THCudaTensor_nDimension(state, input); ++i)
-    printf("%d ", input->size[i]);
-  printf("\n");
   cunnrelease_SpatialConvolution(state, input, weight, bias, finput, fgradinput, output,
       nInputPlane, nOutputPlane, kW, kH, dW, dH, padding);
   return output;
@@ -78,9 +75,6 @@ SpatialMaxPooling::~SpatialMaxPooling() {}
 THCudaTensor*
 SpatialMaxPooling::forward(THCudaTensor *input)
 {
-  for(int i=0; i<THCudaTensor_nDimension(state, input); ++i)
-    printf("%d ", input->size[i]);
-  printf("\n");
   cunnrelease_SpatialMaxPooling(state, input, output, kW, kH, dW, dH, false);
   return output;
 }
@@ -93,9 +87,6 @@ ReLU::~ReLU() {}
 THCudaTensor*
 ReLU::forward(THCudaTensor *input)
 {
-  for(int i=0; i<THCudaTensor_nDimension(state, input); ++i)
-    printf("%d ", input->size[i]);
-  printf("ReLU \n");
   cunnrelease_ReLUIP(state, input);
   return input;
 }
@@ -119,10 +110,6 @@ Linear::~Linear()
 THCudaTensor*
 Linear::forward(THCudaTensor *input)
 {
-  //THAssert(THCudaTensor_nDimension(state, input) <= 2);
-  for(int i=0; i<THCudaTensor_nDimension(state, input); ++i)
-    printf("%d ", input->size[i]);
-  printf("\n");
   cunnrelease_Linear(state, input, output, weight, bias, buffer);
   return output;
 }
@@ -144,10 +131,7 @@ Sequential::forward(THCudaTensor* input)
 {
   THCudaTensor* output = input;
   for(auto& it: modules)
-  {
     output = it->forward(output);
-    printf("norm %f\n", THCudaTensor_normall(it->state, output, 2));
-  }
   return output;
 }
 
@@ -158,9 +142,6 @@ Reshape::~Reshape() {}
 THCudaTensor*
 Reshape::forward(THCudaTensor* input)
 {
-  for(int i=0; i<THCudaTensor_nDimension(state, input); ++i)
-    printf("%d ", input->size[i]);
-  printf("Reshape \n");
   size_t ndim = THCudaTensor_nDimension(state, input);
   // support only one case for now
   THCudaTensor_resize2d(state, output, input->size[0], sizes[0]);

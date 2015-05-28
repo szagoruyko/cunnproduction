@@ -34,13 +34,13 @@ void cunnrelease_ReLU(THCState *state,
     THCudaTensor *input);
 ]]
 
-local C = ffi.load'./build/libcunnrelease.so'
+local C = ffi.load'./build/libcunnrelease.dylib'
 
 local mytester = torch.Tester()
 
 local cunnreleasetest = {}
 
-precision_forward = 1e-7
+precision_forward = 0
 
 function cunnreleasetest.SpatialMaxPooling_floor()
   local from = math.random(1,5)
@@ -61,7 +61,7 @@ function cunnreleasetest.SpatialMaxPooling_floor()
   local act_output = torch.CudaTensor()
   C.cunnrelease_SpatialMaxPooling(cutorch.getState(), input:cdata(), act_output:cdata(), ki, kj, si, sj, false)
 
-  mytester:assertlt((ref_output - act_output):abs():max(), precision_forward, 'SpatialMaxPooling_floor')
+  mytester:asserteq((ref_output - act_output):abs():max(), precision_forward, 'SpatialMaxPooling_floor')
 end
 
 function cunnreleasetest.SpatialMaxPooling_ceil()
@@ -84,7 +84,7 @@ function cunnreleasetest.SpatialMaxPooling_ceil()
 
   C.cunnrelease_SpatialMaxPooling(cutorch.getState(), input:cdata(), act_output:cdata(), ki, kj, si, sj, true)
 
-  mytester:assertlt((ref_output - act_output):abs():max(), precision_forward, 'SpatialMaxPooling_ceil')
+  mytester:asserteq((ref_output - act_output):abs():max(), precision_forward, 'SpatialMaxPooling_ceil')
 end
 
 function cunnreleasetest.SpatialConvolution_forward_single()
@@ -117,7 +117,7 @@ function cunnreleasetest.SpatialConvolution_forward_single()
 	from, to, ki, kj, si, sj, 0)
 
    local error = output - groundtruth
-   mytester:assertlt(error:abs():max(), precision_forward, 'error on state (forward) ')
+   mytester:asserteq(error:abs():max(), precision_forward, 'error on state (forward) ')
 end
 
 function cunnreleasetest.Linear()
@@ -139,11 +139,7 @@ function cunnreleasetest.Linear()
 	buffer:cdata())
 
   local error = output - groundtruth
-  mytester:assertlt(error:abs():max(), precision_forward, 'error on state (forward) ')
-end
-
-function cunnreleasetest.ReLU()
-
+  mytester:asserteq(error:abs():max(), precision_forward, 'error on state (forward) ')
 end
 
 mytester:add(cunnreleasetest)

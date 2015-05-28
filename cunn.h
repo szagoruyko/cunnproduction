@@ -31,7 +31,7 @@ public:
   Sequential(THCState* state);
   ~Sequential();
 
-  Module::Ptr get(int i) const;
+  inline Module::Ptr get(int i) const { return modules[i];  }
   void add(Module::Ptr module);
 
   THCudaTensor* forward(THCudaTensor* input);
@@ -50,6 +50,7 @@ public:
   Concat(THCState *state, int dim);
   ~Concat();
 
+  inline Module::Ptr get(int i) const { return modules[i];  }
   void add(Module::Ptr module);
 
   THCudaTensor* forward(THCudaTensor* input);
@@ -59,7 +60,9 @@ public:
   int dim;
 };
 
-
+/*
+ * nn.Parallel
+ */
 class Parallel : public Module {
 public:
   typedef std::shared_ptr<Parallel> Ptr;
@@ -67,6 +70,7 @@ public:
   Parallel(THCState *state, int input_dim, int output_dim);
   ~Parallel();
 
+  inline Module::Ptr get(int i) const { return modules[i];  }
   void add(Module::Ptr module);
 
   THCudaTensor* forward(THCudaTensor* input);
@@ -151,6 +155,9 @@ public:
   int nOutputPlane, nInputPlane;
 };
 
+/*
+ * nn.Reshape
+ */
 class Reshape : public Module {
 public:
   Reshape(THCState *state, const std::vector<size_t>& sizes);

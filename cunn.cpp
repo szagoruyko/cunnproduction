@@ -140,12 +140,6 @@ Sequential::Sequential(THCState *state) : Module(state) {}
 
 Sequential::~Sequential() {}
 
-Module::Ptr
-Sequential::get(int j) const
-{
-  return modules[j];
-}
-
 void
 Sequential::add(Module::Ptr module)
 {

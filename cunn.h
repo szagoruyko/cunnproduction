@@ -1,3 +1,6 @@
+#ifndef CUNN_H
+#define CUNN_H
+
 #include <THC/THC.h>
 #include <memory>
 #include <vector>
@@ -170,3 +173,4 @@ public:
 };
 
 }
+#endif // CUNN_H

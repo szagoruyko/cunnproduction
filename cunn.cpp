@@ -52,14 +52,6 @@ SpatialConvolutionMM::SpatialConvolutionMM(THCState *state,
   fgradinput = THCudaTensor_new(state);
 }
 
-void printTensorSize(THCState *state, THCudaTensor *tensor)
-{
-  long ndim = THCudaTensor_nDimension(state, tensor);
-  for(long i = 0; i<ndim; ++i)
-    printf("%d ", tensor->size[i]);
-  printf("\n");
-}
-
 THCudaTensor*
 SpatialConvolutionMM::forward(THCudaTensor *input)
 {

@@ -4,7 +4,7 @@ CMAKE_POLICY(VERSION 2.8)
 FIND_PACKAGE(Torch REQUIRED)
 FIND_PACKAGE(CUDA 7.0 REQUIRED) # required for std::shared_ptr
 
-add_definitions(-std=c++11)
+add_definitions(-std=c++11 -fPIC)
 LIST(APPEND CUDA_NVCC_FLAGS "-arch=sm_20 -Xcompiler -fPIC")
 
 INCLUDE_DIRECTORIES("${Torch_INSTALL_INCLUDE}/THC")

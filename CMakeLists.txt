@@ -2,7 +2,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8 FATAL_ERROR)
 CMAKE_POLICY(VERSION 2.8)
 
 FIND_PACKAGE(Torch)
-FIND_PACKAGE(CUDA 7.0 REQUIRED) # required for std::shared_ptr
+FIND_PACKAGE(CUDA 5.5 REQUIRED) # required for std::shared_ptr
 
 add_definitions(-std=c++11 -fPIC)
 LIST(APPEND CUDA_NVCC_FLAGS "-arch=sm_20 -Xcompiler -fPIC")
@@ -23,11 +23,14 @@ INCLUDE_DIRECTORIES(
 
 LINK_DIRECTORIES(${TH_INSTALL_LIB} ${THC_INSTALL_LIB})
 
-SET(src-cuda SpatialMaxPooling.cu SpatialAveragePooling.cu SpatialConvolution.cu Linear.cu ReLU.cu cunn.cpp)
+SET(src-cuda SpatialMaxPooling.cu SpatialAveragePooling.cu SpatialConvolution.cu Linear.cu ReLU.cu)
 
-CUDA_ADD_LIBRARY(cunnproduction SHARED ${src-cuda})
-CUDA_ADD_LIBRARY(cunnproduction_static STATIC ${src-cuda})
+CUDA_ADD_LIBRARY(cunn STATIC ${src-cuda})
 
-TARGET_LINK_LIBRARIES(cunnproduction TH THC)
+ADD_LIBRARY(cunnproduction SHARED cunn.cpp)
+ADD_LIBRARY(cunnproduction_static STATIC cunn.cpp)
+
+TARGET_LINK_LIBRARIES(cunnproduction TH THC cunn)
+TARGET_LINK_LIBRARIES(cunnproduction_static TH THC cunn)
 
 INSTALL(TARGETS cunnproduction LIBRARY DESTINATION lib)

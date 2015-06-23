@@ -11,7 +11,7 @@ void cunnrelease_SpatialConvolution(THCState *state,
     THCudaTensor *columns,
     THCudaTensor *ones,
     THCudaTensor *output,
-    int nInputPlane, int nOutputPlane, int kW, int kH, int dW, int dH, int padding);
+    int nInputPlane, int nOutputPlane, int kW, int kH, int dW, int dH, int pad_w, int pad_h);
 
 void cunnrelease_SpatialMaxPooling(THCState* state,
     THCudaTensor* input, 
@@ -34,7 +34,7 @@ void cunnrelease_ReLU(THCState *state,
     THCudaTensor *input);
 ]]
 
-local C = ffi.load'./build/libcunnrelease.dylib'
+local C = ffi.load'./build/libcunnproduction.so'
 
 local mytester = torch.Tester()
 
@@ -114,7 +114,7 @@ function cunnreleasetest.SpatialConvolution_forward_single()
 	finput:cdata(),
 	fgradinput:cdata(),
 	output:cdata(),
-	from, to, ki, kj, si, sj, 0)
+	from, to, ki, kj, si, sj, 0, 0)
 
    local error = output - groundtruth
    mytester:asserteq(error:abs():max(), precision_forward, 'error on state (forward) ')

@@ -117,7 +117,7 @@ void cunnrelease_SpatialConvolution(THCState *state,
     THCudaTensor *columns,
     THCudaTensor *ones,
     THCudaTensor *output,
-    int nInputPlane, int nOutputPlane, int kW, int kH, int dW, int dH, int padding)
+    int nInputPlane, int nOutputPlane, int kW, int kH, int dW, int dH, int pad_w, int pad_h)
 {
   THAssert(input->nDimension == 3 || input->nDimension == 4);// "3D or 4D (batch mode) tensor is expected");
 
@@ -133,8 +133,8 @@ void cunnrelease_SpatialConvolution(THCState *state,
 
   long inputWidth   = input->size[3];
   long inputHeight  = input->size[2];
-  long outputWidth  = (inputWidth + 2*padding - kW) / dW + 1;
-  long outputHeight = (inputHeight + 2*padding - kH) / dH + 1;
+  long outputWidth  = (inputWidth + 2*pad_w - kW) / dW + 1;
+  long outputHeight = (inputHeight + 2*pad_h - kH) / dH + 1;
 
 
   // Batch size + input planes
@@ -188,7 +188,7 @@ void cunnrelease_SpatialConvolution(THCState *state,
     im2col(
       THCState_getCurrentStream(state),
       THCudaTensor_data(state, input_n),
-      nInputPlane, inputHeight, inputWidth, kH, kW, padding, padding, dH, dW,
+      nInputPlane, inputHeight, inputWidth, kH, kW, pad_h, pad_w, dH, dW,
       THCudaTensor_data(state, columns)
     );
 

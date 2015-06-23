@@ -88,7 +88,7 @@ public:
  */
 class SpatialConvolutionMM : public Module {
 public:
-  SpatialConvolutionMM(THCState *state, int nInputPlane, int nOutputPlane, int kW, int kH, int dW = 1, int dH = 1, int padding = 0);
+  SpatialConvolutionMM(THCState *state, int nInputPlane, int nOutputPlane, int kW, int kH, int dW = 1, int dH = 1, int pad_w = 0, int pad_h = 0);
   ~SpatialConvolutionMM();
 
   THCudaTensor* forward(THCudaTensor *input);
@@ -96,7 +96,7 @@ public:
 
   THCudaTensor *weight, *bias;
   THCudaTensor *finput, *fgradinput;
-  int nInputPlane, nOutputPlane, kW, kH, dW, dH, padding;
+  int nInputPlane, nOutputPlane, kW, kH, dW, dH, pad_w, pad_h;
 };
 
 /*

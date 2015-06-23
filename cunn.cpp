@@ -9,7 +9,7 @@ void cunnrelease_SpatialConvolution(THCState *state,
     THCudaTensor *columns,
     THCudaTensor *ones,
     THCudaTensor *output,
-    int nInputPlane, int nOutputPlane, int kW, int kH, int dW, int dH, int padding);
+    int nInputPlane, int nOutputPlane, int kW, int kH, int dW, int dH, int pad_w, int pad_h);
 
 void cunnrelease_SpatialMaxPooling(THCState* state,
     THCudaTensor* input, 
@@ -44,8 +44,9 @@ Module::~Module() {
 
 
 SpatialConvolutionMM::SpatialConvolutionMM(THCState *state,
-    int nInputPlane, int nOutputPlane, int kW, int kH, int dW, int dH, int padding) :
-    	Module(state), nInputPlane(nInputPlane), nOutputPlane(nOutputPlane), kW(kW), kH(kH), dW(dW), dH(dH), padding(padding)  {
+    int nInputPlane, int nOutputPlane, int kW, int kH, int dW, int dH, int pad_w, int pad_h) :
+    	Module(state), nInputPlane(nInputPlane), nOutputPlane(nOutputPlane), 
+        kW(kW), kH(kH), dW(dW), dH(dH), pad_w(pad_w), pad_h(pad_h)  {
   weight = THCudaTensor_newWithSize2d(state, nOutputPlane, nInputPlane*kW*kH);
   bias = THCudaTensor_newWithSize1d(state, nOutputPlane);
   finput = THCudaTensor_new(state);
@@ -56,7 +57,7 @@ THCudaTensor*
 SpatialConvolutionMM::forward(THCudaTensor *input)
 {
   cunnrelease_SpatialConvolution(state, input, weight, bias, finput, fgradinput, output,
-      nInputPlane, nOutputPlane, kW, kH, dW, dH, padding);
+      nInputPlane, nOutputPlane, kW, kH, dW, dH, pad_w, pad_h);
   return output;
 }
 

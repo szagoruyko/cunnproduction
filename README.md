@@ -29,5 +29,3 @@ net->add(std::make_shared<cunn::ReLU>(state));
 THCudaTensor *input = THCudaTensor_newWithSize4d(state, 1,3,224,224)
 THCudaTensor *output = net->forward(input);
 ```
-
-Only CUDA 7 supported.

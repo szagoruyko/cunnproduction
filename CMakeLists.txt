@@ -24,7 +24,7 @@ INCLUDE_DIRECTORIES(
 
 LINK_DIRECTORIES(${TH_INSTALL_LIB} ${THC_INSTALL_LIB})
 
-SET(src-cuda SpatialMaxPooling.cu SpatialAveragePooling.cu SpatialConvolution.cu Linear.cu ReLU.cu)
+file(GLOB src-cuda *.cu)
 
 CUDA_ADD_LIBRARY(cunn STATIC ${src-cuda})
 

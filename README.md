@@ -13,6 +13,7 @@ nn.SpatialMaxPooling
 nn.SpatialAveragePooling
 nn.ReLU
 nn.Linear
+nn.SoftMax
 ```
 
 I tried to follow Torch7 nn architecture. There is an abstract cunn::Module with forward() function and all the modules are inherited from it, so syntax has to be familiar to torch users:

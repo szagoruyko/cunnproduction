@@ -30,6 +30,9 @@ void cunnrelease_Linear(THCState *state,
 
 void cunnrelease_ReLUIP(THCState *state,
     THCudaTensor *input);
+
+void cunnrelease_SoftMax_updateOutput(THCState *state,
+    THCudaTensor *input, THCudaTensor *output);
 }
 
 namespace cunn {
@@ -310,6 +313,17 @@ Reshape::forward(THCudaTensor* input)
     THCudaTensor_resize2d(state, output, input->size[0], sizes[0]);
   THCudaTensor_copy(state, output, input);
   return output; 
+}
+
+SoftMax::SoftMax(THCState *state) : Module(state) {}
+
+SoftMax::~SoftMax() {}
+
+THCudaTensor*
+SoftMax::forward(THCudaTensor *input)
+{
+  cunnrelease_SoftMax_updateOutput(state, input, output);
+  return output;
 }
 
 } // namespace cunn

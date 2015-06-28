@@ -172,5 +172,17 @@ public:
   std::vector<size_t> sizes;
 };
 
+/*
+ * nn.SoftMax
+ */
+class SoftMax : public Module {
+public:
+  SoftMax(THCState *state);
+  ~SoftMax();
+
+  THCudaTensor* forward(THCudaTensor *input);
+  inline const std::string tostring() const { return std::string("cunn.SoftMax"); }
+};
+
 }
 #endif // CUNN_H

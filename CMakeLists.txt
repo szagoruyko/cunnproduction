@@ -35,3 +35,5 @@ TARGET_LINK_LIBRARIES(cunnproduction TH THC cunn)
 TARGET_LINK_LIBRARIES(cunnproduction_static TH THC cunn)
 
 INSTALL(TARGETS cunnproduction LIBRARY DESTINATION lib)
+INSTALL(TARGETS cunnproduction_static ARCHIVE DESTINATION lib)
+INSTALL(FILES cunn.h DESTINATION include)

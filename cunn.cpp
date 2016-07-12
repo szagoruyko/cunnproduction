@@ -2,25 +2,6 @@
 #include <sstream>
 
 extern "C" {
-void cunnrelease_SpatialConvolution(THCState *state,
-    THCudaTensor *input,
-    THCudaTensor *weight,
-    THCudaTensor *bias,
-    THCudaTensor *columns,
-    THCudaTensor *ones,
-    THCudaTensor *output,
-    int nInputPlane, int nOutputPlane, int kW, int kH, int dW, int dH, int pad_w, int pad_h);
-
-void cunnrelease_SpatialMaxPooling(THCState* state,
-    THCudaTensor* input, 
-    THCudaTensor* output,
-    int kW, int kH, int dW, int dH, bool is_ceil);
-
-void cunnrelease_SpatialAveragePooling(THCState* state,
-    THCudaTensor* input,
-    THCudaTensor* output,
-    int kW, int kH, int dW, int dH, bool is_ceil);
-
 void cunnrelease_Linear(THCState *state,
     THCudaTensor *input,
     THCudaTensor *output,
@@ -28,11 +9,16 @@ void cunnrelease_Linear(THCState *state,
     THCudaTensor *bias,
     THCudaTensor *buffer);
 
-void cunnrelease_ReLUIP(THCState *state,
-    THCudaTensor *input);
+void THNN_CudaSpatialConvolutionMM_updateOutput(THCState *state, THCudaTensor *input, THCudaTensor *output, THCudaTensor *weight, THCudaTensor *bias, THCudaTensor *columns, THCudaTensor *ones, int kW, int kH, int dW, int dH, int padW, int padH);
 
-void cunnrelease_SoftMax_updateOutput(THCState *state,
-    THCudaTensor *input, THCudaTensor *output);
+void THNN_CudaSpatialMaxPooling_updateOutput(THCState *state, THCudaTensor *input, THCudaTensor *output, THCudaTensor *indices, int kW, int kH, int dW, int dH, int padW, int padH, bool ceil_mode);
+
+void THNN_CudaSpatialAveragePooling_updateOutput(THCState *state, THCudaTensor *input, THCudaTensor *output, int kW, int kH, int dW, int dH, int padW, int padH, bool ceil_mode, bool count_include_pad);
+
+void THNN_CudaThreshold_updateOutput(THCState *state, THCudaTensor *input, THCudaTensor *output,
+  double threshold, double val, bool inplace);
+
+void THNN_CudaSoftMax_updateOutput(THCState *state, THCudaTensor *input, THCudaTensor *output);
 }
 
 namespace cunn {
@@ -59,8 +45,7 @@ SpatialConvolutionMM::SpatialConvolutionMM(THCState *state,
 THCudaTensor*
 SpatialConvolutionMM::forward(THCudaTensor *input)
 {
-  cunnrelease_SpatialConvolution(state, input, weight, bias, finput, fgradinput, output,
-      nInputPlane, nOutputPlane, kW, kH, dW, dH, pad_w, pad_h);
+  THNN_CudaSpatialConvolutionMM_updateOutput(state, input, output, weight, bias, finput, fgradinput, kW, kH, dW, dH, 0, 0);
   return output;
 }
 
@@ -80,7 +65,7 @@ SpatialMaxPooling::~SpatialMaxPooling() {}
 THCudaTensor*
 SpatialMaxPooling::forward(THCudaTensor *input)
 {
-  cunnrelease_SpatialMaxPooling(state, input, output, kW, kH, dW, dH, is_ceil);
+  THNN_CudaSpatialMaxPooling_updateOutput(state, input, output, indices, kW, kH, dW, dH, 0, 0, is_ceil);
   return output;
 }
 
@@ -92,7 +77,7 @@ SpatialAveragePooling::~SpatialAveragePooling() {}
 THCudaTensor*
 SpatialAveragePooling::forward(THCudaTensor *input)
 {
-  cunnrelease_SpatialAveragePooling(state, input, output, kW, kH, dW, dH, is_ceil);
+  THNN_CudaSpatialAveragePooling_updateOutput(state, input, output, kW, kH, dW, dH, 0, 0, is_ceil, true);
   return output;
 }
 
@@ -104,7 +89,7 @@ ReLU::~ReLU() {}
 THCudaTensor*
 ReLU::forward(THCudaTensor *input)
 {
-  cunnrelease_ReLUIP(state, input);
+  THNN_CudaThreshold_updateOutput(state, input, input, 0, 0, true);
   return input;
 }
 
@@ -322,7 +307,7 @@ SoftMax::~SoftMax() {}
 THCudaTensor*
 SoftMax::forward(THCudaTensor *input)
 {
-  cunnrelease_SoftMax_updateOutput(state, input, output);
+  THNN_CudaSoftMax_updateOutput(state, input, output);
   return output;
 }
 

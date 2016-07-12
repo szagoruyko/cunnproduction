@@ -110,6 +110,7 @@ public:
   THCudaTensor* forward(THCudaTensor *input);
   inline const std::string tostring() const { return std::string("cunn.SpatialMaxPooling"); }
 
+  THCudaTensor *indices;
   int kW, kH, dW, dH;
   bool is_ceil;
 };

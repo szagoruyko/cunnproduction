@@ -58,9 +58,15 @@ SpatialConvolutionMM::~SpatialConvolutionMM()
 }
 
 SpatialMaxPooling::SpatialMaxPooling(THCState *state, int kW, int kH, int dW, int dH, bool is_ceil) :
-  Module(state), kW(kW), kH(kH), dW(dW), dH(dH), is_ceil(is_ceil) {}
+  Module(state), kW(kW), kH(kH), dW(dW), dH(dH), is_ceil(is_ceil)
+{
+  indices = THCudaTensor_new(state);
+}
 
-SpatialMaxPooling::~SpatialMaxPooling() {}
+SpatialMaxPooling::~SpatialMaxPooling()
+{
+  THCudaTensor_free(state, indices);
+}
 
 THCudaTensor*
 SpatialMaxPooling::forward(THCudaTensor *input)
